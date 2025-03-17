@@ -18,6 +18,10 @@ default_definition = {"":""}
 
 
 def assemble(inp:str, default_const: dict[str,str] | None = None) -> tuple[list[str],list[int,int,int],dict[str,str]]:
+    """Inputs:
+        default_definition: dict[str,str] - the default definition will be used
+
+    returns formatted_code, indesis, settings"""
     # first step cut each line
     lines: list[str] = inp.split("\n")
     line_buffer = []
@@ -29,6 +33,7 @@ def assemble(inp:str, default_const: dict[str,str] | None = None) -> tuple[list[
     encoding = False
 
     configs = False
+    print("tesing...\n",inp,"\n\noutp\n")
     # surffing on each part of file
     for y in range(len(lines)):
         buffer = ""
@@ -40,31 +45,40 @@ def assemble(inp:str, default_const: dict[str,str] | None = None) -> tuple[list[
         else:
             configs = True
         
-        if lines[y].strip().statswith("define"): # why tf it gives error
+        if lines[y].strip().startswith("define"): # why tf it gives error
             continue
 
         # line skipflag
         skip = False
         for x in range(len(lines[y])):
             char = lines[y][x]
+            # print(char,end="")
             if multi_line_comment: # to basically do nothing if we are inside a multi line comment
                 if lines[y][x-1:x] == "*/":
+                    encoding = False
                     multi_line_comment = False
             elif encoding:
                if char ==  "/": # triggers a line skip aka comment
+                   encoding = False
                    skip = True
-                   break
                if char == "*":
                    multi_line_comment = True
-            elif reading:
+            if reading:
                 if char == "/": # triggers a encoding
                     encoding = True
                     continue
-                elif char == ",":
-                    line_buffer.append(buffer)
+                elif char == "," or char == "\n" or char == ":" or skip:
+                    buffer += ":" if char == ":" else ""
+                    buffer = buffer.strip()
+                    print(buffer)
+                    line_buffer.append([buffer,y,x-len(buffer),x])
                     buffer = ""
+                    if skip:
+                        break
+                    
                 else:
                     buffer += char
+    print(line_buffer)
 
 #=target================state#
 # definition            done
