@@ -1,3 +1,3 @@
-# assembly-processor
+# ASSEMBLY PREE ASSEMBLING
 
-this is a repo for the pree processing of the assembly syntax
+it will basicaly convert a assembly to a much readable form for computer

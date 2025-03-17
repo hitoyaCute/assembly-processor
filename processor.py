@@ -10,7 +10,14 @@ class EncodingError(Exception):
     pass
 
 
-def assemble(inp:str, default_const: dict | None = None) -> tuple[list[str],dict]:
+# default definitions
+# like operands yes!! i use constant values as operand
+default_definition = {"":""}
+
+
+
+
+def assemble(inp:str, default_const: dict[str,str] | None = None) -> tuple[list[str],list[int,int,int],dict[str,str]]:
     # first step cut each line
     lines: list[str] = inp.split("\n")
     line_buffer = []
@@ -125,12 +132,9 @@ outp = assemble(testinp)
 
 
 if __name__ == "__mai n__":
-    with open("./program/test.asm", "r") as file:
-        data = file.read()
-        data = assemble(data)
-        with open("./program/test.casm", "w") as outp:
-            print(*data[0], sep="\n")
-            print(*data[0], sep="\n",file=outp)
+    u = assemble(testinp)
+
+    print(*u,sep="\n")
 
 
 
