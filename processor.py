@@ -5,15 +5,16 @@ import numpy as np
 # this is a universal assembler that will take a file and covert it to more computer readable format
 #
 
+
+
 class EncodingError(Exception):
-    """when you fk the "/" """
+    """when you mess with the the "/" """
     pass
 
 
 # default definitions
 # like operands yes!! i use constant values as operand
-default_definition = {"":""}
-
+default_definition = {"not": "0", "and": "1", "or": "2", "xor": "3", "add": "4", "sub": "5", "mul": "6", "div": "7",}
 
 
 
@@ -22,63 +23,28 @@ def assemble(inp:str, default_const: dict[str,str] | None = None) -> tuple[list[
         default_definition: dict[str,str] - the default definition will be used
 
     returns formatted_code, indesis, settings"""
-    # first step cut each line
-    lines: list[str] = inp.split("\n")
-    line_buffer = []
-    # well do pattern matching
+    # first split the input into lines
+    lines = inp.split("\n")
+    definitions = {}
 
-    multi_line_comment = False
-    
-    reading = True
-    encoding = False
+    ismulti = False
 
-    configs = False
-    print("tesing...\n",inp,"\n\noutp\n")
-    # surffing on each part of file
+
+    # find each marker on each line and list the marker and its starting and ending index
+    markers = []
     for y in range(len(lines)):
-        buffer = ""
-        
-        # to speed things up
-        # we will skip from here
         if lines[y].startswith("//"):
             continue
-        else:
-            configs = True
-        
-        if lines[y].strip().startswith("define"): # why tf it gives error
+        if lines[y].startswith("define"):
+            constant, value = lines[y].split(" ")[5:]
+            definitions[constant.strip()] = int(value)
             continue
-
-        # line skipflag
-        skip = False
+        # surft on each char on each line
         for x in range(len(lines[y])):
-            char = lines[y][x]
-            # print(char,end="")
-            if multi_line_comment: # to basically do nothing if we are inside a multi line comment
-                if lines[y][x-1:x] == "*/":
-                    encoding = False
-                    multi_line_comment = False
-            elif encoding:
-               if char ==  "/": # triggers a line skip aka comment
-                   encoding = False
-                   skip = True
-               if char == "*":
-                   multi_line_comment = True
-            if reading:
-                if char == "/": # triggers a encoding
-                    encoding = True
-                    continue
-                elif char == "," or char == "\n" or char == ":" or skip:
-                    buffer += ":" if char == ":" else ""
-                    buffer = buffer.strip()
-                    print(buffer)
-                    line_buffer.append([buffer,y,x-len(buffer),x])
-                    buffer = ""
-                    if skip:
-                        break
-                    
-                else:
-                    buffer += char
-    print(line_buffer)
+
+
+
+    
 
 #=target================state#
 # definition            done
