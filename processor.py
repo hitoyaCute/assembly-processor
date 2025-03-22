@@ -1,21 +1,12 @@
 import re
 
 import numpy as np
-
 # this is a universal assembler that will take a file and covert it to more computer readable format
 #
-
-
 
 class EncodingError(Exception):
     """when you mess with the the "/" """
     pass
-
-
-# default definitions
-# like operands yes!! i use constant values as operand
-default_definition = {"not": "0", "and": "1", "or": "2", "xor": "3", "add": "4", "sub": "5", "mul": "6", "div": "7",}
-
 
 
 def assemble(inp:str, default_const: dict[str,str] | None = None) -> tuple[list[str],list[int,int,int],dict[str,str]]:
@@ -24,27 +15,43 @@ def assemble(inp:str, default_const: dict[str,str] | None = None) -> tuple[list[
 
     returns formatted_code, indesis, settings"""
     # first split the input into lines
+
+    reseting = True
+    settings = []
     lines = inp.split("\n")
     definitions = {}
 
+    # is multi line comment
     ismulti = False
 
+    # if writing
+    reading = ""
 
     # find each marker on each line and list the marker and its starting and ending index
-    markers = []
     for y in range(len(lines)):
-        if lines[y].startswith("//"):
+        if lines[y].startswith("//") and reseting:
+            settings.append(lines[y][2:].strip())
             continue
+        else:
+            reseting = 0
         if lines[y].startswith("define"):
             constant, value = lines[y].split(" ")[5:]
             definitions[constant.strip()] = int(value)
             continue
         # surft on each char on each line
         for x in range(len(lines[y])):
+            if lines[y][x-1:x] == "//": # inline comment
+                break
+            if lines[y][x-1:x] == "/*":
+                ismulti = True
+            if lines[y][x-1:x] == "*/":
+                if not ismulti:
+                    raise EncodingError("fuck you dont fuck with my syntax")
+                ismulti = False
 
+            if reading and not ismulti:
 
-
-    
+# 
 
 #=target================state#
 # definition            done
@@ -110,8 +117,7 @@ print("start")
 outp = assemble(testinp)
 
 
-
-if __name__ == "__mai n__":
+if __name__ == "__main__":
     u = assemble(testinp)
 
     print(*u,sep="\n")
