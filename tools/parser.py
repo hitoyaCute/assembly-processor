@@ -1,6 +1,10 @@
-
-
-
+parse = (
+    ("definitions", ("define","identifier","identifier,int")),
+    ("operation", ("identifier","#" ,"ram,int,base,register","*")),
+    ("systate", ("comment","#","comment","endline","*")),
+    ("ram", ("lram","lram","int,identifier,base","rram")),
+    ("register", ("reg", "int,base,identifier"))
+)
 
 
 class Parser:
@@ -10,10 +14,10 @@ class Parser:
 
     def parse_type(self, token):
 
-        
+        pass
     
 
-    def parse(tokens:list[list[str]]) -> list[str]:
+    def parse(self,tokens:list[list[str]]) -> list[str]:
         is_milti_line = False
         is_meta_data = True
     
@@ -25,16 +29,9 @@ class Parser:
         pos = 0
         while True:
             token = tokens[pos]
-            if token[0] == "tag":
-                tags[token[0]] = str(pos)
-            if token[0] == "identifier":
-                name = tokens[0]
-                if name in tags:
-                    temp += f" {tags[name]}"
-                else:
-                    raise ValueError(f"identifier '{name}' couldn't find")
-            if token[0] == "define":
-                name = tokens[pos+1]
-                if name[0] != "identifier":
-                    raise ValueError(f"")
-                value = self.
+            for par_type,par in parse:
+                if token[0] == par[0]:
+                    while True:
+                        temp += " " + token[1]
+                        pos += 1
+
