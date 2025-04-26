@@ -1,10 +1,10 @@
-parse = (
-    ("definitions", ("define","identifier","identifier,int")),
-    ("operation", ("identifier","#" ,"ram,int,base,register","*")),
-    ("systate", ("comment","#","comment","endline","*")),
-    ("ram", ("lram","lram","int,identifier,base","rram")),
-    ("register", ("reg", "int,base,identifier"))
-)
+types = (
+    ("definitions",("define","_","identifier","_","identifier,int")),
+    ("operation",("identifier","#","_","ram,int,base,register","*")),
+    ("systate",("comment","#","comment","endline","*")),
+    ("ram",("lram","_,none","int,identifier,base","_,none","rram")),
+    ("register",("reg","_","int,base,identifier"))
+) 
 
 
 class Parser:
@@ -12,14 +12,8 @@ class Parser:
         self.tags:dict[str, str] = {}
         self.output:list[str] = []
 
-    def parse_type(self, token):
-
-        pass
-    
 
     def parse(self,tokens:list[list[str]]) -> list[str]:
-        is_milti_line = False
-        is_meta_data = True
     
         tags:dict[str,str] = {}
 

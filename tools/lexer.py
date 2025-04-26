@@ -1,8 +1,6 @@
 #!/home/hitoya/Downloads/programs/.venv/bin/activate python3
 # the main main goal of lexer is to identify a patern on a text called lex and give a coresp   
-
 import re
-import time
 
 
 patterns = (
@@ -11,9 +9,8 @@ patterns = (
         # ("comment2",  r"/\*.*?\*/"),
         # ("lcomment",  r"/\*"),
         # ("rcomment",  r"\*/"),
-        ("lcomment",  r"\/\*.*?\*\/"),
-        ("string",    r"'.*?'"),
-        ("string",    r'".*?"'),
+        ("lcomment",  r"(?s)\/\*.*?\*\/"),
+        ("string",    r"(['\"]).*?\1"),
         ("label",     r"[a-zA-Z_][a-zA-Z0-9_]*:"), # labels like tag:
         # ("collon",    r":"), 
         ("identifier",r"[a-zA-Z_][a-zA-Z0-9_]*"), # anything that starts with char
@@ -38,14 +35,10 @@ def tokenize(assembly:str) -> list[list[str]]:
     lpos = 0
     line = 0
     tokens:list[list[str]] = []
-    initializing = True
     while pos < len(assembly):
         match = None
         for name, pattern in patterns:
-            if name == "lcomment":
-                match = re.match(pattern, assembly[pos:], re.DOTALL)
-            else:
-                match = re.match(pattern, assembly[pos:])
+            match = re.match(pattern, assembly[pos:])
 
             if match:
                 
@@ -55,13 +48,15 @@ def tokenize(assembly:str) -> list[list[str]]:
                 
                 if name in ["tab","whitespace"]:
                     name = "_"
-                    value = ""
+                    value = " "
 
-                    break
-                elif name == "endline":
+                    
+                if name == "endline":
                     lpos = 0
                     line += 1
                     tokens.append([name,"","0","0",str(line-1)])
+                elif name == "lcomment":
+                    break
                 else:
                     tokens.append([name,value,str(lpos-len(value)),str(lpos-1),str(line)])
                 break
@@ -78,9 +73,9 @@ if __name__ == "__main__":
 
 //comment
 define sui 0xff
-/*meh*/ dasda*sdad sas
+/*meh*/ 
 
-
+"string" 'cus why not'
 
 stuff1:
     sus $0x64
