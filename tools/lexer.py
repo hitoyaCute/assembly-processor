@@ -2,7 +2,6 @@
 # the main main goal of lexer is to identify a patern on a text called lex and give a coresp   
 import re
 
-
 patterns = (
         ("comment",   r"\/\/.*"),
         ("lcomment",  r"(?s)\/\*.*?\*\/"),
@@ -10,16 +9,17 @@ patterns = (
         ("label",     r"[a-zA-Z_][a-zA-Z0-9_]*:"), # labels like tag:
         ("identifier",r"[a-zA-Z_][a-zA-Z0-9_]*"), # anything that starts with char
         ("endline",   r"\n"),
+        ("terminator",r"[\s\t\f\v]*\n"),
         ("reg",       r"\$w*"),# $reg q
         ("ram",       r"\[.*?\]"),
         ("base",      r"0[a-z0-9][a-z0-9]*"), # to detect 0xff like or 033
         ("int",       r"\d+"),
         ("define",    r"define .*"),
+        ("whitespace",r"[\s\t]+"),
         ("invalid",   r".*")
 )
-
 class LexError(ValueError):
-    """This error will be called whenever thers a error while tokenizing"""
+    """This error will be called whenever theres a error while tokenizing"""
     pass
 
 def tokenize(assembly:str) -> list[list[str]]:
@@ -27,9 +27,12 @@ def tokenize(assembly:str) -> list[list[str]]:
     lpos = 0
     line = 0
     tokens:list[list[str]] = []
+    com =  True # is finding settings
     while pos < len(assembly):
         match = None
         name = value = ""
+
+
         for name, pattern in patterns:
             match = re.match(pattern, assembly[pos:])            
             if match:
@@ -40,21 +43,19 @@ def tokenize(assembly:str) -> list[list[str]]:
                 
                 if name == "invalid":
                     break
-                if name in ["tab","whitespace"]:
-                    name = "_"
-                    value = " "
-                    
-                if name == "endline":
-                    lpos = 0
-                    line += 1
-                    tokens.append([name,"","0","0",str(line-1)])
-                elif name == "lcomment":
+                if name in ["whitespace","endline"]:
+                    break
+                if com and name == "terminator":
+                    com = False
+                    tokens.append(["terminator","",*"000"])
+
+                elif name == "lcomment" or name == "terminator":
                     break
                 else:
                     tokens.append([name,value,str(lpos-len(value)),str(lpos-1),str(line)])
                 break
         if not match or name == "invalid":
-            raise LexError(f"unknow pattern found started at {line}:{lpos} >> {value}")
+            raise LexError(f"unknow pattern found started at {line}:{lpos} >> '{value}'")
     return tokens
 
 if __name__ == "__main__":
