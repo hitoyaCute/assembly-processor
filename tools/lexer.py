@@ -16,10 +16,10 @@ patterns = (
         ("int",       r"\d+"),
         ("define",    r"define .*"),
         ("whitespace",r"[\s\t]+"),
-        ("invalid",   r".*")
+        ("invalid",   r".*") # match all pattern that didnt matched of previus patterns
 )
 class LexError(ValueError):
-    """This error will be called whenever theres a error while tokenizing"""
+    """This error will be raised whenever theres a error while tokenizing"""
     pass
 
 def tokenize(assembly:str) -> list[list[str]]:
