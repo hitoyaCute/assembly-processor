@@ -1,29 +1,21 @@
-#!/home/hitoya/Downloads/programs/.venv/bin/activate python3
+#!/home/hitoya/Downloads/programs/.venv/bin/python3.12
 # the main main goal of lexer is to identify a patern on a text called lex and give a coresp   
 import re
 
 
 patterns = (
-        # but not here
         ("comment",   r"\/\/.*"),
-        # ("comment2",  r"/\*.*?\*/"),
-        # ("lcomment",  r"/\*"),
-        # ("rcomment",  r"\*/"),
         ("lcomment",  r"(?s)\/\*.*?\*\/"),
         ("string",    r"(['\"]).*?\1"),
         ("label",     r"[a-zA-Z_][a-zA-Z0-9_]*:"), # labels like tag:
-        # ("collon",    r":"), 
         ("identifier",r"[a-zA-Z_][a-zA-Z0-9_]*"), # anything that starts with char
         ("endline",   r"\n"),
-        ("reg",       r"\$"),# $reg q
-        ("lram",      r"\["),# ram is just the value
-        ("rram",      r"\]"),
+        ("reg",       r"\$w*"),# $reg q
+        ("ram",       r"\[.*?\]"),
         ("base",      r"0[a-z0-9][a-z0-9]*"), # to detect 0xff like or 033
-        ("whitespace",r"\s+"),
-        ("tab",       r"\t+"),
         ("int",       r"\d+"),
-        ("define",    r"define\b"),
-        # ("opcode",    r"[a-zA-Z_][a-zA-Z0-9_]*")
+        ("define",    r"define .*"),
+        ("invalid",   r".*")
 )
 
 class LexError(ValueError):
@@ -37,19 +29,20 @@ def tokenize(assembly:str) -> list[list[str]]:
     tokens:list[list[str]] = []
     while pos < len(assembly):
         match = None
+        name = value = ""
         for name, pattern in patterns:
-            match = re.match(pattern, assembly[pos:])
-
+            match = re.match(pattern, assembly[pos:])            
             if match:
                 
                 value = match.group(0)
                 lpos += len(value)
                 pos += match.end()
                 
+                if name == "invalid":
+                    break
                 if name in ["tab","whitespace"]:
                     name = "_"
                     value = " "
-
                     
                 if name == "endline":
                     lpos = 0
@@ -60,8 +53,8 @@ def tokenize(assembly:str) -> list[list[str]]:
                 else:
                     tokens.append([name,value,str(lpos-len(value)),str(lpos-1),str(line)])
                 break
-        if not match:
-            raise LexError(f"unknow pattern found started at {line}:{lpos} >> {repr(re.match(r'^(?![\w_]+$)(.+)',assembly[pos:]).group(0))}")
+        if not match or name == "invalid":
+            raise LexError(f"unknow pattern found started at {line}:{lpos} >> {value}")
     return tokens
 
 if __name__ == "__main__":

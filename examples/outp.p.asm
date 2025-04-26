@@ -3,7 +3,6 @@ __SIM
 ram=256
 word_size=8
 SIM__
-
 __definitions__
 var 34
 var2 18
